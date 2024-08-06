@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 
@@ -7,6 +7,8 @@ const router = useRouter();
 const route = useRoute();
 const items = ref([]);
 const subCategName = ref("");
+const noData = ref(false);
+const subCategId = ref("");
 
 // Fetch data function
 const fetchItems = async (id) => {
@@ -14,21 +16,46 @@ const fetchItems = async (id) => {
     const response = await axios.get(
       `http://localhost:3000/api/quiz/subcategory/${id}`
     );
-    const subName = await axios.get(
-      `http://localhost:3000/api/sub-category/${id}`
-    );
-    subCategName.value = subName.data.name;
     items.value = response.data; // Ensure response.data is an array of items
     console.log(items.value); // Check the structure of response.data
   } catch (error) {
+    noData.value = true;
     console.error("Error fetching data:", error);
   }
 };
 
-fetchItems(route.params.id);
+// Fetch subcategory name
+const getSubcateg = async (id) => {
+  try {
+    const subName = await axios.get(
+      `http://localhost:3000/api/sub-category/${id}`
+    );
+    subCategId.value = id;
+    subCategName.value = subName.data.name;
+  } catch (error) {
+    console.error("Error fetching subcategory name:", error);
+  }
+};
 
-const goToCategory = (id) => {
-  router.push(`/quiz/${id}`);
+// Handle fetching data after component mounts
+onMounted(() => {
+  const id = route.params.id; // Get ID from route params
+  if (id) {
+    getSubcateg(id);
+    fetchItems(id);
+  } else {
+    noData.value = true;
+    console.error("No ID provided in route params");
+  }
+});
+
+const createQuiz = async () => {
+  console.log("Create quiz button clicked");
+  if (subCategId.value) {
+    router.push(`/create-quiz/${subCategId.value}`);
+  } else {
+    console.error("Subcategory ID is not available");
+  }
 };
 
 const goBack = () => {
@@ -37,8 +64,6 @@ const goBack = () => {
 
 // Edit quiz function
 const editQuiz = async (item) => {
-  // Implement your edit logic here
-  // For example, navigate to an edit page
   router.push(`/edit-quiz/${item.id}`);
 };
 
@@ -60,7 +85,13 @@ const deleteQuiz = async (item) => {
 </script>
 
 <template>
-  <h1 class="text-3xl py-3">{{ subCategName }}</h1>
+  <div class="flex justify-between py-2">
+    <h1 class="text-3xl py-3">{{ subCategName }}</h1>
+    <button @click="createQuiz" class="bg-green-400 rounded-md px-3 py-2">
+      Create quiz
+    </button>
+  </div>
+
   <div v-for="item in items" :key="item.id" class="border shadow-lg p-3 mb-5">
     <div class="flex justify-between border p-2 items-center">
       <div>
@@ -86,5 +117,3 @@ const deleteQuiz = async (item) => {
   </div>
   <v-btn @click="goBack" class="my-5">Back</v-btn>
 </template>
-
-<style scoped></style>

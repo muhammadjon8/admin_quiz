@@ -26,6 +26,10 @@ const routes = [
         component: () => import("../pages/editQuiz.vue"),
       },
       {
+        path: "/create-quiz/:id",
+        component: () => import("../pages/createQuiz.vue"),
+      },
+      {
         path: "/users",
         component: () => import("../pages/users/userList.vue"),
       },

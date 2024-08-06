@@ -69,7 +69,7 @@ watch([question, option1, option2, option3, correct_answer], () => {
       <input v-model="option3" type="text" class="w-2/3 px-2 py-3 border" />
       <input v-model="correct_answer" type="text" class="w-2/3 px-2 py-3 border bg-green-200" />
     </div>
-    <button @click="submitForm" :disabled="!valid" class="my-5">Submit</button>
+    <button @click="submitForm" :disabled="!valid" class="my-5 bg-blue-100 py-3">Submit</button>
   </div>
 
   <v-btn @click="goBack" class="my-5">Back</v-btn>
